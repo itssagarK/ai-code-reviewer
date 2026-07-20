@@ -165,6 +165,8 @@ def invalidate_cache_for_file(file_path: str) -> None:
 def clear_embedding_cache() -> None:
     with _cache_lock:
         _embedding_cache.clear()
+    with _per_key_locks_lock:
+        _per_key_locks.clear()
 
 
 def get_cache_stats() -> dict:

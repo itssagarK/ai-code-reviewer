@@ -175,6 +175,14 @@ class TestClearEmbeddingCache:
         get_or_compute_embedding("b.py", "y = 2")
         clear_embedding_cache()
 
+    def test_clear_removes_per_key_locks(self):
+        """Clear should also empty per-key lock tracking dictionary."""
+        from embeddings import _per_key_locks
+        get_or_compute_embedding("a.py", "x = 1")
+        assert "a.py" in _per_key_locks
+        clear_embedding_cache()
+        assert len(_per_key_locks) == 0
+
     def test_clear_on_empty_cache_is_noop(self):
         """Clearing an already-empty cache should not raise."""
         clear_embedding_cache()
