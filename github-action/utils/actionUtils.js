@@ -5,6 +5,8 @@
 export function globToRegex(pattern) {
   let regexStr = '^';
   let i = 0;
+  const escapeRegex = (ch) => ch.replace(/[\\^$+?.()|[\]{}]/g, '\\$&');
+
   while (i < pattern.length) {
     const ch = pattern[i];
     if (ch === '*') {
@@ -21,14 +23,11 @@ export function globToRegex(pattern) {
     } else if (ch === '?') {
       regexStr += '[^/]';
       i++;
-    } else if (ch === '.') {
-      regexStr += '\\.';
-      i++;
     } else if (ch === '/') {
       regexStr += '/';
       i++;
     } else {
-      regexStr += ch;
+      regexStr += escapeRegex(ch);
       i++;
     }
   }

@@ -60,6 +60,12 @@ test('globToRegex: ** at end of pattern handles trailing slash', () => {
   assert.ok(regex.test('node_modules/a/b'), 'node_modules/** should match deep paths');
 });
 
+test('globToRegex: escapes regex metacharacters literally', () => {
+  const regex = globToRegex('src/(legacy)/a+b/[draft].js');
+  assert.ok(regex.test('src/(legacy)/a+b/[draft].js'), 'should match literal special characters');
+  assert.ok(!regex.test('src/legacy/aaab/d.js'), 'should not treat special chars as regex patterns');
+});
+
 // ---------------------------------------------------------------------------
 // cleanAndParseJSON
 // ---------------------------------------------------------------------------
