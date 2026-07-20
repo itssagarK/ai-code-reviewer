@@ -192,5 +192,14 @@ class TestLoadConfigFromFiles:
         assert config is not None
         assert config.is_language_enabled("go") is False
 
+    def test_finds_config_with_relative_path_prefix(self):
+        files = [
+            FakeFile(f"./{CONFIG_FILENAME}", SAMPLE_CONFIG_YAML),
+            FakeFile("src/main.go", "package main"),
+        ]
+        config = load_config_from_files(files)
+        assert config is not None
+        assert config.rules["no-console"]["severity"] == "off"
+
     def test_empty_file_list_returns_none(self):
         assert load_config_from_files([]) is None

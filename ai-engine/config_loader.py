@@ -159,7 +159,9 @@ def load_config_from_files(files: List[Any]) -> Optional[CodeReviewerConfig]:
     """
     for f in files:
         name = getattr(f, "name", None) if not isinstance(f, dict) else f.get("name")
-        if name == CONFIG_FILENAME:
-            content = getattr(f, "content", None) if not isinstance(f, dict) else f.get("content")
-            return parse_config_text(content or "")
+        if name:
+            normalized_name = str(name).replace("\\", "/").lstrip("./")
+            if normalized_name == CONFIG_FILENAME:
+                content = getattr(f, "content", None) if not isinstance(f, dict) else f.get("content")
+                return parse_config_text(content or "")
     return None
