@@ -321,7 +321,18 @@ test('AnalysisCache: sweeper evicts expired keys from _repoUrlIndex and cleans e
   await new Promise(resolve => setTimeout(resolve, 50));
 
   assert.equal(cache.cache.has(key), false, 'Cache key should be deleted');
-  assert.equal(cache._repoUrlIndex.has(repo), false, 'Empty Set should be deleted from index map');
-  
   cache._stopSweeper();
+});
+
+test('AnalysisCache: invalidate cleans empty Set from _repoUrlIndex', () => {
+  const cache = new AnalysisCache();
+  const repo = 'https://github.com/owner/repo-invalidate';
+  const key = cache.generateKey(repo, [{ name: 'file.js', content: 'content' }]);
+
+  cache.set(key, { data: 123 }, { repoUrl: repo });
+  assert.equal(cache._repoUrlIndex.has(repo), true);
+
+  cache.invalidate(key);
+  assert.equal(cache.cache.has(key), false);
+  assert.equal(cache._repoUrlIndex.has(repo), false, 'Empty Set should be deleted from _repoUrlIndex map on invalidate');
 });

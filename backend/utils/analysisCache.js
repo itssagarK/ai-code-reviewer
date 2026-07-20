@@ -130,16 +130,14 @@ class AnalysisCache {
     if (this.cache.has(key)) {
       const entry = this.cache.get(key);
       this.cache.delete(key);
-      if (entry.repoUrl && this._repoUrlIndex.has(entry.repoUrl)) {
-        this._repoUrlIndex.get(entry.repoUrl).delete(key);
-      }
+      this._removeFromRepoUrlIndex(entry.repoUrl, key);
     } else if (this.cache.size >= this.maxEntries) {
       const oldestKey = this.cache.keys().next().value;
       if (oldestKey !== undefined) {
         const entry = this.cache.get(oldestKey);
         this.cache.delete(oldestKey);
-        if (entry && entry.repoUrl && this._repoUrlIndex.has(entry.repoUrl)) {
-          this._repoUrlIndex.get(entry.repoUrl).delete(oldestKey);
+        if (entry) {
+          this._removeFromRepoUrlIndex(entry.repoUrl, oldestKey);
         }
         this.stats.evictions++;
       }
@@ -335,6 +333,16 @@ class AnalysisCache {
     };
   }
 
+  _removeFromRepoUrlIndex(repoUrl, key) {
+    if (repoUrl && this._repoUrlIndex.has(repoUrl)) {
+      const set = this._repoUrlIndex.get(repoUrl);
+      set.delete(key);
+      if (set.size === 0) {
+        this._repoUrlIndex.delete(repoUrl);
+      }
+    }
+  }
+
   /**
    * Manually expire an entry (useful for testing or cache invalidation).
    */
@@ -342,9 +350,7 @@ class AnalysisCache {
     if (this.cache.has(key)) {
       const entry = this.cache.get(key);
       this.cache.delete(key);
-      if (entry.repoUrl && this._repoUrlIndex.has(entry.repoUrl)) {
-        this._repoUrlIndex.get(entry.repoUrl).delete(key);
-      }
+      this._removeFromRepoUrlIndex(entry.repoUrl, key);
       console.log(`❌ Invalidated cache entry for key ${key.slice(0, 8)}...`);
       return true;
     }
@@ -389,8 +395,8 @@ class AnalysisCache {
       if (oldestKey !== undefined) {
         const entry = this.cache.get(oldestKey);
         this.cache.delete(oldestKey);
-        if (entry && entry.repoUrl && this._repoUrlIndex.has(entry.repoUrl)) {
-          this._repoUrlIndex.get(entry.repoUrl).delete(oldestKey);
+        if (entry) {
+          this._removeFromRepoUrlIndex(entry.repoUrl, oldestKey);
         }
         this.stats.evictions++;
       }
