@@ -124,7 +124,6 @@ class DedupStore {
     if (this.redisClient) {
       try {
         await this.redisClient.del(key);
-        return;
       } catch (err) {
         console.warn(`⚠️ Redis del failed for ${key}, falling back to memory:`, err.message);
       }
