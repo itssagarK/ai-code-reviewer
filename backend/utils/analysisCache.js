@@ -14,26 +14,25 @@ import crypto from 'crypto';
 
 class AsyncLock {
   constructor() {
-    this._promise = null;
-    this._resolve = null;
+    this._chain = Promise.resolve();
+    this._pending = 0;
   }
   async acquire(fn) {
-    while (this._promise) {
-      await this._promise;
-    }
-    this._promise = new Promise(resolve => { this._resolve = resolve; });
+    this._pending++;
+    const previous = this._chain;
+    let release;
+    this._chain = new Promise(resolve => { release = resolve; });
     try {
+      await previous;
       return await fn();
     } finally {
-      const resolve = this._resolve;
-      this._promise = null;
-      this._resolve = null;
-      if (resolve) resolve();
+      this._pending--;
+      release();
     }
   }
 
   isFree() {
-    return this._promise === null;
+    return this._pending === 0;
   }
 }
 
