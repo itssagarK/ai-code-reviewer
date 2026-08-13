@@ -109,7 +109,7 @@ def query_chunks(
             "chunk_id": ids[i] if i < len(ids) else None,
             "content": documents[i],
             "metadata": metadatas[i] if i < len(metadatas) else {},
-            "similarity_score": 1.0 - distances[i] if i < len(distances) else None,
+            "similarity_score": 1.0 - distances[i] if (i < len(distances) and distances[i] is not None) else None,
         })
     return chunks
 
